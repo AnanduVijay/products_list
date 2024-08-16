@@ -11,17 +11,15 @@ import {
 } from "react-native";
 
 import { useSelector, useDispatch } from "react-redux";
-import { addToCart,decrementQuantity,removeFromCart} from "../slices/cartSlice";
+import { addToCart,decrementQuantity,incrementQuantity, removeFromCart} from "../slices/cartSlice";
 
 export default function ProductList() {
-  
   const cart = useSelector((state) => state.cart);
   console.log(cart);
   const dispatch = useDispatch();
 
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
   const [modalVissible, setModalVisible] = useState(false);
 
   const closeModal = () => {
@@ -34,12 +32,19 @@ export default function ProductList() {
   };
 
   const handleAddToCart = (product) => {
-    console.log(product);
-    dispatch(addToCart(product.id));
+    dispatch(addToCart(product));
   };
 
   const handleDecrement = (product) => {
-    dispatch(decrementQuantity(product.id));
+    if(product.quantity == 1){
+      dispatch(removeFromCart(item));
+    }else{
+    dispatch(decrementQuantity(product));
+    }
+  };
+  incrementQuantity
+  const handleincrement = (product) => {
+    dispatch(incrementQuantity(product));
   };
 
   useEffect(() => {
@@ -97,26 +102,29 @@ export default function ProductList() {
                 <Text style={styles.modaltPrice}>
                   Rs.{selectedProduct.price}
                 </Text>
-                {!cart[selectedProduct.id] ? (
+                {cart.some((value)=>value.id == selectedProduct.id) ? ( 
                   <View style={styles.cartManageContainer}>
-                    <TouchableOpacity style={styles.addToCartButton} >
-                      <Text>+</Text>
+                    <TouchableOpacity style={styles.incrementtButton} onPress={()=> handleincrement(selectedProduct)} >
+                      <Text style={styles.quantityText}>+</Text>
                     </TouchableOpacity >
-                    <Text>{cart[selectedProduct.id]}</Text>
-                    <TouchableOpacity style={styles.addToCartButton} onPress={() => handleDecrement(selectedProduct)}>
-                      <Text>-</Text>
+                    <View style={styles.quantityContainer}> 
+                    {cart.map((selectedProduct, index)=>(
+                      <Text key={index} style={styles.quantityText} >Qty: { selectedProduct.quantity}</Text>
+                    ))}
+                    </View>
+                   
+                    
+                    <TouchableOpacity style={styles.decrementtButton} onPress={() => handleDecrement(selectedProduct)}>
+                      <Text style={styles.quantityText}>-</Text>
                     </TouchableOpacity>
-                  </View>
-                ) : (
-                  <TouchableOpacity
+                  </View>):(<TouchableOpacity
                     style={styles.addToCartButton}
                     onPress={() => handleAddToCart(selectedProduct)}
                   >
                     <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-                  </TouchableOpacity>
-                )}
-                  <Text>qty:{cart[selectedProduct.id]}</Text>
-
+                  </TouchableOpacity>)}
+                 
+                  
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={closeModal}
@@ -220,7 +228,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 12,
-    backgroundColor: "#FF0606",
+    backgroundColor: "#CCD1D1",
     width: "100%",
     borderRadius: 10,
     marginTop: 10,
@@ -232,7 +240,7 @@ const styles = StyleSheet.create({
   },
   addToCartButton: {
     padding: 12,
-    backgroundColor: "#1DBD0D",
+    backgroundColor: "#FF0606",
     borderRadius: 10,
     width: "100%",
     marginTop: 10,
@@ -242,4 +250,36 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 75,
   },
+  cartManageContainer:{
+    flexDirection:"row",
+    gap:10
+    
+  },
+  incrementtButton:{
+    padding: 12,
+    backgroundColor: "#4FEA2D",
+    width: "25%",
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  decrementtButton:{
+    padding: 12,
+    backgroundColor: "#FF0606",
+    width: "25%",
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  quantityContainer:{
+    padding: 12,
+    backgroundColor: "#F4F6F6",
+    width: "30%",
+    borderRadius: 10,
+    marginTop: 10,
+    
+  },
+  quantityText:{
+    fontSize:16,
+    fontWeight: "bold",
+    alignSelf: "center",
+  }
 });
