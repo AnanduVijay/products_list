@@ -11,7 +11,12 @@ import {
 } from "react-native";
 
 import { useSelector, useDispatch } from "react-redux";
-import { addToCart,decrementQuantity,incrementQuantity, removeFromCart} from "../slices/cartSlice";
+import {
+  addToCart,
+  decrementQuantity,
+  incrementQuantity,
+  removeFromCart,
+} from "../slices/cartSlice";
 
 export default function ProductList() {
   const cart = useSelector((state) => state.cart);
@@ -36,13 +41,13 @@ export default function ProductList() {
   };
 
   const handleDecrement = (product) => {
-    if(product.quantity == 1){
+    if (product.quantity == 1) {
       dispatch(removeFromCart(item));
-    }else{
-    dispatch(decrementQuantity(product));
+    } else {
+      dispatch(decrementQuantity(product));
     }
   };
-  incrementQuantity
+  incrementQuantity;
   const handleincrement = (product) => {
     dispatch(incrementQuantity(product));
   };
@@ -53,6 +58,11 @@ export default function ProductList() {
       .then((data) => setProducts(data))
       .then((error) => console.log("error fetching products:", error));
   }, []);
+
+  const findQuantity = (id) => {
+    const item = cart.find((item) => item.id === id);
+    return item ? item.quantity : 0;
+  };
 
   const ProductItem = ({ item }) => (
     <TouchableOpacity
@@ -80,7 +90,6 @@ export default function ProductList() {
           renderItem={ProductItem}
           keyExtractor={(item) => item.id.toString()}
         />
-
         {selectedProduct && (
           <Modal
             visible={modalVissible}
@@ -102,29 +111,35 @@ export default function ProductList() {
                 <Text style={styles.modaltPrice}>
                   Rs.{selectedProduct.price}
                 </Text>
-                {cart.some((value)=>value.id == selectedProduct.id) ? ( 
+                {cart.some((value) => value.id == selectedProduct.id) ? (
                   <View style={styles.cartManageContainer}>
-                    <TouchableOpacity style={styles.incrementtButton} onPress={()=> handleincrement(selectedProduct)} >
-                      <Text style={styles.quantityText}>+</Text>
-                    </TouchableOpacity >
-                    <View style={styles.quantityContainer}> 
-                    {cart.map((selectedProduct, index)=>(
-                      <Text key={index} style={styles.quantityText} >Qty: { selectedProduct.quantity}</Text>
-                    ))}
-                    </View>
-                   
-                    
-                    <TouchableOpacity style={styles.decrementtButton} onPress={() => handleDecrement(selectedProduct)}>
+                    <TouchableOpacity
+                      style={styles.decrementtButton}
+                      onPress={() => handleDecrement(selectedProduct)}
+                    >
                       <Text style={styles.quantityText}>-</Text>
                     </TouchableOpacity>
-                  </View>):(<TouchableOpacity
+                    <View style={styles.quantityContainer}>
+                      <Text style={styles.quantityText}>
+                        Qty: {findQuantity(selectedProduct.id)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.incrementtButton}
+                      onPress={() => handleincrement(selectedProduct)}
+                    >
+                      <Text style={styles.quantityText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
                     style={styles.addToCartButton}
                     onPress={() => handleAddToCart(selectedProduct)}
                   >
                     <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-                  </TouchableOpacity>)}
-                 
-                  
+                  </TouchableOpacity>
+                )}
+
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={closeModal}
@@ -230,16 +245,17 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "#CCD1D1",
     width: "100%",
+    alignItems: "center",
     borderRadius: 10,
     marginTop: 10,
   },
   closeButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 100,
   },
   addToCartButton: {
     padding: 12,
+    alignItems: "center",
     backgroundColor: "#FF0606",
     borderRadius: 10,
     width: "100%",
@@ -248,38 +264,38 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 75,
+    color: "#fff",
   },
-  cartManageContainer:{
-    flexDirection:"row",
-    gap:10
-    
+  cartManageContainer: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+    justifyContent: "space-between",
   },
-  incrementtButton:{
+  incrementtButton: {
     padding: 12,
     backgroundColor: "#4FEA2D",
     width: "25%",
     borderRadius: 10,
     marginTop: 10,
   },
-  decrementtButton:{
+  decrementtButton: {
     padding: 12,
     backgroundColor: "#FF0606",
     width: "25%",
     borderRadius: 10,
     marginTop: 10,
   },
-  quantityContainer:{
+  quantityContainer: {
     padding: 12,
     backgroundColor: "#F4F6F6",
     width: "30%",
     borderRadius: 10,
     marginTop: 10,
-    
   },
-  quantityText:{
-    fontSize:16,
+  quantityText: {
+    fontSize: 16,
     fontWeight: "bold",
     alignSelf: "center",
-  }
+  },
 });
